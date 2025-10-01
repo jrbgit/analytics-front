@@ -14,6 +14,8 @@ export class InfluxDBService {
     this.bucket = process.env.INFLUXDB_BUCKET || 'crypto_data';
 
     this.influxDB = new InfluxDB({ url, token });
+    console.log(`🔧 InfluxDB Service initialized with token ending: ***${token.slice(-10)}`);
+    console.log(`🔧 URL: ${url}, ORG: ${this.org}, BUCKET: ${this.bucket}`);
     this.queryApi = this.influxDB.getQueryApi(this.org);
   }
 
