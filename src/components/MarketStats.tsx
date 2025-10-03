@@ -42,7 +42,7 @@ const StatCard = ({ label, value, icon = '📊', trend = 'neutral', isLoading = 
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:shadow-md hover:border-gray-200 group">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 transition-all duration-200 hover:shadow-md hover:border-gray-200 hover:shadow-lg group cursor-default">
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-medium text-gray-600 group-hover:text-gray-700 transition-colors">
           {label}
@@ -87,7 +87,7 @@ export const MarketStats = () => {
     trend: 'up' | 'down' | 'neutral';
   }> = [
     {
-      label: 'Market Cap',
+      label: 'Total Market Cap',
       value: overview?.total_market_cap ? formatCurrency(overview.total_market_cap) : '-',
       icon: '🏛️',
       trend: 'neutral'
@@ -99,7 +99,7 @@ export const MarketStats = () => {
       trend: 'up'
     },
     {
-      label: 'Liquidity',
+      label: 'Market Liquidity',
       value: overview?.total_liquidity ? formatCurrency(overview.total_liquidity) : '-',
       icon: '💧',
       trend: 'neutral'
@@ -126,8 +126,8 @@ export const MarketStats = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+      {/* Stats Grid - Responsive layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6">
         {stats.map((stat, index) => (
           <StatCard
             key={index}
@@ -142,18 +142,19 @@ export const MarketStats = () => {
 
       {/* Additional Info Bar */}
       {!isLoading && overview && (
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500 border-t border-gray-100 pt-4">
-          <div className="flex items-center space-x-1">
+        <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500 bg-gray-50 rounded-lg p-3 border border-gray-100">
+          <div className="flex items-center space-x-2">
             <span className="w-1.5 h-1.5 bg-blue-400 rounded-full"></span>
-            <span>Data sourced from LiveCoinWatch</span>
+            <span>Data sourced from LiveCoinWatch API</span>
           </div>
-          <div className="flex items-center space-x-1">
-            <span className="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+          <div className="flex items-center space-x-2">
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
             <span>Updated every 60 seconds</span>
           </div>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-2">
             <span className="w-1.5 h-1.5 bg-purple-400 rounded-full"></span>
-            <span>Last update: {new Date(overview.timestamp).toLocaleTimeString()}</span>
+            <span className="hidden sm:inline">Last update: {new Date().toLocaleTimeString()}</span>
+            <span className="sm:hidden">Updated just now</span>
           </div>
         </div>
       )}
