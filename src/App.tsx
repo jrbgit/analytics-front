@@ -3,7 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MarketStats } from './components/MarketStats';
 import { CoinTable } from './components/CoinTable';
 import { PriceChart } from './components/PriceChart';
-import { ChartTest } from './components/ChartTest';
+import { DebugChart } from './components/DebugChart';
+import { MinimalRechartsTest } from './components/MinimalRechartsTest';
 import { CoinData } from './types/coin';
 
 const queryClient = new QueryClient({
@@ -19,8 +20,11 @@ function App() {
   const [selectedCoin, setSelectedCoin] = useState<CoinData | null>(null);
 
   const handleCoinSelect = (coin: CoinData) => {
+    console.log('Coin selected:', coin);
     setSelectedCoin(coin);
   };
+
+  console.log('App rendering, selected coin:', selectedCoin);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -28,7 +32,7 @@ function App() {
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <h1 className="text-3xl font-bold text-gray-900">
-              Crypto Analytics Dashboard
+              Crypto Analytics Dashboard - Debug Mode
             </h1>
             <p className="text-gray-600 mt-1">
               Real-time cryptocurrency prices and market data
@@ -37,20 +41,28 @@ function App() {
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <MarketStats />
+          {/* Debug Information */}
+          <DebugChart />
           
-          {/* Chart Test Section */}
-          <div className="mb-8">
-            <ChartTest />
+          {/* Minimal Recharts Test */}
+          <div className="mb-6">
+            <MinimalRechartsTest />
           </div>
+
+          <MarketStats />
 
           {/* Price Chart Section */}
           {selectedCoin ? (
             <div className="mb-8">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold text-gray-900">Price Chart</h2>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Price Chart for {selectedCoin.name}
+                </h2>
                 <button
-                  onClick={() => setSelectedCoin(null)}
+                  onClick={() => {
+                    console.log('Clearing selection');
+                    setSelectedCoin(null);
+                  }}
                   className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   Clear Selection
