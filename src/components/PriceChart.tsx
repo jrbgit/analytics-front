@@ -56,17 +56,29 @@ const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
 
 export const PriceChart = ({ coinCode, coinName, className = '' }: PriceChartProps) => {
   const [selectedRange, setSelectedRange] = useState<TimeRange>('24h');
-  const [useTestData, setUseTestData] = useState(false);
+  const [useTestData, setUseTestData] = useState(false); // Changed to false - default to live data
   
-  const { data: apiData, isLoading, error } = useChartData(
+  const { data: apiData, isLoading, error, isError } = useChartData(
     coinCode, 
     TIME_RANGES[selectedRange].hours
   );
 
-  // Use test data if enabled or if API data is not available
+  console.log('PriceChart render:', {
+    coinCode,
+    coinName,
+    selectedRange,
+    useTestData,
+    isLoading,
+    isError,
+    error,
+    apiDataLength: apiData?.length,
+    apiDataSample: apiData?.[0]
+  });
+
+  // Use test data only if explicitly enabled
   const data = useTestData ? testChartData : apiData;
 
-  if (isLoading && !useTestData) {
+  if (isLoading) {
     return (
       <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
         <div className="flex items-center justify-between mb-6">
@@ -75,18 +87,21 @@ export const PriceChart = ({ coinCode, coinName, className = '' }: PriceChartPro
           </h3>
         </div>
         <div className="flex items-center justify-center h-96">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+            <p className="text-gray-600">Loading {coinCode} data...</p>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (error && !useTestData) {
+  if (isError && !useTestData) {
     return (
       <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xl font-semibold text-gray-900">
-            {coinName} Price Chart - Error
+            {coinName} Price Chart - API Error
           </h3>
           <button
             onClick={() => setUseTestData(true)}
@@ -97,8 +112,16 @@ export const PriceChart = ({ coinCode, coinName, className = '' }: PriceChartPro
         </div>
         <div className="flex items-center justify-center h-96">
           <div className="text-center">
-            <p className="text-red-600 mb-2">Error loading chart data</p>
-            <p className="text-sm text-gray-500">Error: {error.message}</p>
+            <p className="text-red-600 mb-2">Error loading chart data for {coinCode}</p>
+            <p className="text-sm text-gray-500 mb-2">
+              Error: {error?.message || 'Unknown API error'}
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"
+            >
+              Reload Page
+            </button>
           </div>
         </div>
       </div>
@@ -120,7 +143,10 @@ export const PriceChart = ({ coinCode, coinName, className = '' }: PriceChartPro
           </button>
         </div>
         <div className="flex items-center justify-center h-96">
-          <p className="text-gray-600">No chart data available</p>
+          <div className="text-center">
+            <p className="text-gray-600 mb-2">No chart data available for {coinCode}</p>
+            <p className="text-sm text-gray-500">API returned empty data set</p>
+          </div>
         </div>
       </div>
     );
@@ -136,10 +162,17 @@ export const PriceChart = ({ coinCode, coinName, className = '' }: PriceChartPro
     <div className={`bg-white rounded-lg shadow p-6 ${className}`}>
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-xl font-semibold text-gray-900">
-          {coinName} Price Chart {useTestData && '(Test Data)'}
+          {coinName} Price Chart 
+          {useTestData && <span className="text-orange-600"> (Test Data)</span>}
+          {!useTestData && apiData && <span className="text-green-600"> (Live Data)</span>}
         </h3>
         
         <div className="flex items-center space-x-2">
+          {/* Debug Info */}
+          <div className="text-xs text-gray-500">
+            {!useTestData && apiData && `${apiData.length} points`}
+          </div>
+
           {/* Test Data Toggle */}
           <button
             onClick={() => setUseTestData(!useTestData)}
@@ -203,10 +236,16 @@ export const PriceChart = ({ coinCode, coinName, className = '' }: PriceChartPro
               dataKey="timestamp"
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleTimeString('en-US', { 
-                  hour: '2-digit', 
-                  minute: '2-digit',
-                  hour12: false 
+                if (selectedRange === '1h' || selectedRange === '24h') {
+                  return date.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    hour12: false 
+                  });
+                }
+                return date.toLocaleDateString('en-US', { 
+                  month: 'short', 
+                  day: 'numeric' 
                 });
               }}
               stroke="#666"
