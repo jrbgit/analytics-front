@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { useTopCoins } from '../hooks/useCoins';
-import { formatCurrency, formatPercent, getPercentColor, formatNumber } from '../utils/formatters';
+import { formatCurrency, formatPercent, getPercentColor } from '../utils/formatters';
 import { CoinData } from '../types/coin';
 
-export const CoinTable = () => {
-  const [limit, setLimit] = useState(100);
+interface CoinTableProps {
+  onCoinSelect?: (coin: CoinData) => void;
+  selectedCoin?: CoinData | null;
+}
+
+export const CoinTable = ({ onCoinSelect, selectedCoin }: CoinTableProps) => {
+  const limit = 100;
   const [searchTerm, setSearchTerm] = useState('');
   const { data: coins, isLoading, error } = useTopCoins(limit);
 
@@ -13,6 +18,10 @@ export const CoinTable = () => {
       coin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       coin.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleCoinClick = (coin: CoinData) => {
+    onCoinSelect?.(coin);
+  };
 
   if (isLoading) {
     return (
@@ -49,6 +58,11 @@ export const CoinTable = () => {
             className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+        {onCoinSelect && (
+          <div className="mt-2 text-sm text-blue-600">
+            Click on any coin row to view its price chart
+          </div>
+        )}
       </div>
 
       <div className="overflow-x-auto">
@@ -83,7 +97,15 @@ export const CoinTable = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredCoins?.map((coin) => (
-              <tr key={coin.code} className="hover:bg-gray-50 transition-colors">
+              <tr 
+                key={coin.code} 
+                onClick={() => handleCoinClick(coin)}
+                className={`transition-colors cursor-pointer ${
+                  selectedCoin?.code === coin.code 
+                    ? 'bg-blue-50 hover:bg-blue-100' 
+                    : 'hover:bg-gray-50'
+                }`}
+              >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   {coin.rank}
                 </td>

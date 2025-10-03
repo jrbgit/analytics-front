@@ -1,5 +1,5 @@
 import { useMarketOverview } from '../hooks/useCoins';
-import { formatCurrency, formatPercent } from '../utils/formatters';
+import { formatCurrency } from '../utils/formatters';
 
 export const MarketStats = () => {
   const { data: overview, isLoading, error } = useMarketOverview();
