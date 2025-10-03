@@ -52,6 +52,8 @@ export const CoinTable = ({ onCoinSelect, selectedCoin }: CoinTableProps) => {
           <h2 className="text-xl font-bold text-gray-900">Top Cryptocurrencies</h2>
           <input
             type="text"
+            id="coin-search"
+            name="coinSearch"
             placeholder="Search coins..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
