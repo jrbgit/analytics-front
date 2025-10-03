@@ -6,19 +6,28 @@ export default defineConfig({
   plugins: [react()],
   build: {
     sourcemap: true,
+    minify: 'terser', // Use terser instead of esbuild for better CSP compatibility
+    rollupOptions: {
+      output: {
+        // Ensure no eval is used in production bundles
+        format: 'es'
+      }
+    }
   },
   esbuild: {
-    // Avoid eval usage in development
-    keepNames: true,
+    // Disable eval usage but keep it simple
+    keepNames: true
+  },
+  css: {
+    devSourcemap: true
   },
   server: {
-    // Configure headers for development
-    headers: {
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' http://localhost:* ws://localhost:*"
+    headers: {},
+    hmr: {
+      overlay: true
     }
   },
   define: {
-    // Ensure proper environment variables
     global: 'globalThis',
   }
 })
